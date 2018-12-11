@@ -63,7 +63,7 @@ and [`songdeck`](https://github.com/NickleDave/songdeck) libraries.
 
 ### Getting Help
 Please feel free to raise an issue here:  
-https://github.com/NickleDave/evfuncs/issues
+https://github.com/soberlab/evfuncs/issues
 
 ### License
 [BSD License](./LICENSE).
