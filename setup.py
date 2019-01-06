@@ -23,11 +23,11 @@ URL = 'https://github.com/NickleDave/evfuncs'
 EMAIL = 'nicholdav@gmail.com'
 AUTHOR = 'David Nicholson'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1.1a3'
+VERSION = '0.1.1'
 LICENSE = 'BSD'
 
 REQUIRED = [
-    'numpy', 'scipy',
+    'numpy', 'scipy>=1.2.0',
 ]
 
 # this is here so that the .travis.yml script can install

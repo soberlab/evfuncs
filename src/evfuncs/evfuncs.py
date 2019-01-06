@@ -21,8 +21,41 @@ def readrecf(filename):
     Returns
     -------
     rec_dict : dict
-    """
+        with following key, value pairs
+            header : str
+                header from .rec file
+            time_before : float
+                time in seconds of additional audio added to file by EvTAF
+                from before sound amplitude went above threshold for recording
+            time_after : float
+                time in seconds of additional audio added to file by EvTAF
+                after sound amplitude dropped below threshold for recording
+            iscatch : bool
+                list of whether each occurrence of auditory feedback triggered
+                was a 'catch trial' (where feedback would have been triggered but
+                was withheld so behavior on that trial could be measured)
+            num_channels : int
+                number of channels from DAQ board recored by EvTAF
+            sample_freq : int
+                sampling frequency of audio file associated with this .rec file, in Hertz
+            num_samples : int
+                number of audio samples in file
+            outfile : str
+                name of audio file played as auditory feedback (if there was any)
+            thresholds : int
+                thresholds used by ring counter to determine whether to trigger auditory feedback
+            feedback_info : dict
+                maps feedback type to time it occurred in milliseconds
 
+    Examples
+    --------
+    >>> recf = 'gy6or6_baseline_230312_0808.138.rec'
+    >>> rec_dict = readrecf(recf)
+    >>> num_samples = rec_dict['num_samples'}
+    >>> sample_freq = rec_dict['sample_freq'}
+    >>> print(f"file duration in seconds: {num_samples / sample_freq:.3f}")
+    file duration in seconds: 12.305
+    """
     rec_dict = {}
     with open(filename, 'r') as recfile:
         line_tmp = ""
@@ -121,11 +154,17 @@ def load_cbin(filename, channel=0):
 
     Returns
     -------
-    data : np.ndarray
+    data : numpy.ndarray
         1-d vector of 16-bit signed integers
-
     sample_freq : int or float
         sampling frequency in Hz. Typically 32000.
+
+    Examples
+    --------
+    >>> cbin_filename = 'gy6or6_baseline_230312_0808.138.cbin'
+    >>> data, sample_freq = load_cbin(cbin_filename)
+    >>> data
+    array([-230, -223, -235, ...,   34,   36,   26], dtype=int16)
     """
     # .cbin files are big endian, 16 bit signed int, hence dtype=">i2" below
     data = np.fromfile(filename, dtype=">i2")
@@ -149,10 +188,19 @@ def load_notmat(filename):
     notmat_dict : dict
         variables from .not.mat files
 
-    Basically a wrapper around scipy.io.loadmat. Calls loadmat with squeeze_me=True
-    to remove extra dimensions from arrays that loadmat parser sometimes adds.
-    """
+    Examples
+    --------
+    >>> a_notmat = 'gy6or6_baseline_230312_0808.138.cbin.not.mat'
+    >>> notmat_dict = load_notmat(a_notmat)
+    >>> notmat_dict.keys()
+    dict_keys(['__header__', '__version__', '__globals__', 'Fs', 'fname', 'labels',
+    'onsets', 'offsets', 'min_int', 'min_dur', 'threshold', 'sm_win'])
 
+    Notes
+    -----
+    Basically a wrapper around `scipy.io.loadmat`. Calls `loadmat` with `squeeze_me=True`
+    to remove extra dimensions from arrays that `loadmat` parser sometimes adds.
+    """
     if ".not.mat" in filename:
         pass
     elif filename[-4:] == "cbin":
@@ -245,7 +293,6 @@ def smooth_data(rawsong, samp_freq, freq_cutoffs=(500, 10000), smooth_win=2):
     This is a very literal translation from the Matlab function SmoothData.m
     by Evren Tumer. Uses the Thomas-Santana algorithm.
     """
-
     if freq_cutoffs is None:
         # then don't do bandpass_filtfilt
         filtsong = rawsong
